@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ramadan Persona Generator ✨🌙</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            ramadan: {
+              dark: '#0f172a',
+              navy: '#1e293b',
+              purple: '#7c3aed',
+              pink: '#ec4899',
+              gold: '#f59e0b',
+              teal: '#14b8a6',
+              green: '#10b981',
+            }
+          },
+          animation: {
+            'float': 'float 3s ease-in-out infinite',
+            'pulse-slow': 'pulse 3s ease-in-out infinite',
+            'slide-up': 'slideUp 0.5s ease-out',
+            'fade-in': 'fadeIn 0.5s ease-out',
+            'bounce-in': 'bounceIn 0.6s ease-out',
+            'shimmer': 'shimmer 2s infinite linear',
+            'spin-slow': 'spin 3s linear infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(30px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' },
+            },
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            bounceIn: {
+              '0%': { transform: 'scale(0.3)', opacity: '0' },
+              '50%': { transform: 'scale(1.05)' },
+              '70%': { transform: 'scale(0.9)' },
+              '100%': { transform: 'scale(1)', opacity: '1' },
+            },
+            shimmer: {
+              '0%': { backgroundPosition: '-200% 0' },
+              '100%': { backgroundPosition: '200% 0' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+      min-height: 100vh;
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .glass-strong {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #f59e0b, #ec4899, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .gradient-btn {
+      background: linear-gradient(135deg, #7c3aed, #ec4899);
+      transition: all 0.3s ease;
+    }
+
+    .gradient-btn:hover {
+      background: linear-gradient(135deg, #6d28d9, #db2777);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(124, 58, 237, 0.4);
+    }
+
+    .gradient-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .option-card {
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .option-card:hover {
+      border-color: rgba(124, 58, 237, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(124, 58, 237, 0.2);
+    }
+
+    .option-card.selected {
+      border-color: #7c3aed;
+      background: rgba(124, 58, 237, 0.2);
+    }
+
+    .option-card.correct {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.2);
+    }
+
+    .option-card.wrong {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    .tone-card {
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+
+    .tone-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .tone-card.selected {
+      border-color: #f59e0b;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+    }
+
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+
+    .star {
+      position: fixed;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle var(--duration) ease-in-out infinite;
+      opacity: 0;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0; }
+      50% { opacity: var(--opacity); }
+    }
+
+    .crescent-moon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      box-shadow: 15px -5px 0 0 #f59e0b;
+    }
+
+    .loading-dot {
+      animation: loadingDot 1.4s infinite ease-in-out both;
+    }
+    .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+    .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes loadingDot {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+
+    .shimmer-bg {
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.05) 25%,
+        rgba(255,255,255,0.1) 50%,
+        rgba(255,255,255,0.05) 75%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 2s infinite linear;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: flex;
+    }
+
+    .confetti-piece {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      animation: confetti-fall 3s ease-in forwards;
+      z-index: 100;
+    }
+
+    @keyframes confetti-fall {
+      0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body class="font-sans text-white overflow-x-hidden">
+  <!-- Starfield Background -->
+  <div id="starfield" class="fixed inset-0 pointer-events-none z-0"></div>
+
+  <!-- ============ ENTRY PAGE ============ -->
+  <div id="page-entry" class="page active flex-col items-center justify-center min-h-screen px-4 py-8 relative z-10">
+    <div class="max-w-md w-full mx-auto text-center">
+      <!-- Moon & Title -->
+      <div class="mb-8 animate-float">
+        <div class="text-7xl mb-4">🌙</div>
+        <h1 class="text-4xl md:text-5xl font-extrabold gradient-text leading-tight mb-2">
+          Ramadan Persona
+        </h1>
+        <p class="text-lg text-purple-200 font-medium">Generator</p>
+      </div>
+
+      <p class="text-gray-300 mb-8 text-sm md:text-base leading-relaxed">
+        Jawab 5 trivia seru tentang Ramadan dan temukan
+        <span class="text-yellow-400 font-semibold">persona Ramadan</span> kamu!
+      </p>
+
+      <!-- Name Input -->
+      <div class="glass rounded-2xl p-6 mb-6 text-left">
+        <label for="input-name" class="block text-sm font-semibold text-purple-200 mb-2">
+          Siapa nama kamu? 👋
+        </label>
+        <input
+          type="text"
+          id="input-name"
+          placeholder="Ketik nama kamu di sini..."
+          maxlength="30"
+          class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/30 transition-all"
+        />
+      </div>
+
+      <!-- Tone Selection -->
+      <div class="glass rounded-2xl p-6 mb-8 text-left">
+        <label class="block text-sm font-semibold text-purple-200 mb-3">
+          Pilih vibes kamu 🎭
+        </label>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="tone-card glass rounded-xl p-4 text-center" data-tone="receh" onclick="selectTone('receh')">
+            <div class="text-3xl mb-2">😂</div>
+            <div class="font-bold text-sm">Receh</div>
+            <div class="text-xs text-gray-400 mt-1">Lucu & santai</div>
+          </div>
+          <div class="tone-card glass rounded-xl p-4 text-center" data-tone="serius" onclick="selectTone('serius')">
+            <div class="text-3xl mb-2">🧠</div>
+            <div class="font-bold text-sm">Serius</div>
+            <div class="text-xs text-gray-400 mt-1">Mendalam & bijak</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Start Button -->
+      <button
+        id="btn-start"
+        onclick="startQuiz()"
+        disabled
+        class="gradient-btn w-full rounded-2xl py-4 font-bold text-lg tracking-wide"
+      >
+        Mulai Trivia 🚀
+      </button>
+
+      <p class="text-gray-500 text-xs mt-4">Powered by AI &middot; Qwen Model</p>
+    </div>
+  </div>
+
+  <!-- ============ QUIZ PAGE ============ -->
+  <div id="page-quiz" class="page flex-col items-center min-h-screen px-4 py-6 relative z-10">
+    <div class="max-w-md w-full mx-auto">
+      <!-- Quiz Header -->
+      <div class="flex items-center justify-between mb-4">
+        <div class="text-sm text-purple-300 font-semibold">
+          <span id="quiz-current">1</span> / <span id="quiz-total">5</span>
+        </div>
+        <div id="quiz-player-name" class="text-sm text-gray-400"></div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="w-full bg-white/10 rounded-full h-2 mb-8">
+        <div id="quiz-progress" class="progress-bar h-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500" style="width: 0%"></div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="quiz-loading" class="text-center py-16">
+        <div class="inline-flex items-center gap-2 mb-6">
+          <div class="loading-dot w-3 h-3 rounded-full bg-purple-400"></div>
+          <div class="loading-dot w-3 h-3 rounded-full bg-pink-400"></div>
+          <div class="loading-dot w-3 h-3 rounded-full bg-yellow-400"></div>
+        </div>
+        <p class="text-gray-300 text-sm" id="loading-text">Sedang menyiapkan pertanyaan...</p>
+        <div class="mt-6 space-y-3">
+          <div class="shimmer-bg h-6 rounded-lg w-3/4 mx-auto"></div>
+          <div class="shimmer-bg h-12 rounded-xl"></div>
+          <div class="shimmer-bg h-12 rounded-xl"></div>
+          <div class="shimmer-bg h-12 rounded-xl"></div>
+          <div class="shimmer-bg h-12 rounded-xl"></div>
+        </div>
+      </div>
+
+      <!-- Question Content -->
+      <div id="quiz-content" class="hidden">
+        <div class="glass-strong rounded-2xl p-6 mb-6 animate-slide-up">
+          <p id="quiz-question" class="text-lg font-bold leading-relaxed"></p>
+        </div>
+
+        <div id="quiz-options" class="space-y-3 mb-8">
+          <!-- Options injected by JS -->
+        </div>
+
+        <button
+          id="btn-next"
+          onclick="nextQuestion()"
+          disabled
+          class="gradient-btn w-full rounded-2xl py-4 font-bold text-lg tracking-wide hidden"
+        >
+          Lanjut ➡️
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RESULT PAGE ============ -->
+  <div id="page-result" class="page flex-col items-center justify-center min-h-screen px-4 py-8 relative z-10">
+    <div class="max-w-md w-full mx-auto text-center">
+      <!-- Loading state for result -->
+      <div id="result-loading" class="py-16">
+        <div class="text-6xl mb-6 animate-spin-slow">🌙</div>
+        <p class="text-lg text-purple-200 font-semibold mb-2">Menganalisis jawaban kamu...</p>
+        <p class="text-sm text-gray-400">AI sedang menentukan persona Ramadan kamu</p>
+        <div class="inline-flex items-center gap-2 mt-6">
+          <div class="loading-dot w-3 h-3 rounded-full bg-purple-400"></div>
+          <div class="loading-dot w-3 h-3 rounded-full bg-pink-400"></div>
+          <div class="loading-dot w-3 h-3 rounded-full bg-yellow-400"></div>
+        </div>
+      </div>
+
+      <!-- Result Content -->
+      <div id="result-content" class="hidden">
+        <div class="text-6xl mb-4 animate-bounce-in" id="result-emoji">🏆</div>
+
+        <h2 class="text-2xl font-extrabold text-white mb-1 animate-slide-up">
+          <span id="result-player-name"></span>
+        </h2>
+
+        <div class="animate-slide-up">
+          <p class="text-sm text-purple-300 mb-2">Persona Ramadan kamu adalah...</p>
+          <h3 class="text-3xl md:text-4xl font-extrabold gradient-text mb-6" id="result-persona">
+            <!-- Persona name -->
+          </h3>
+        </div>
+
+        <!-- Score Card -->
+        <div class="glass-strong rounded-2xl p-6 mb-6 animate-slide-up">
+          <div class="flex items-center justify-center gap-3 mb-4">
+            <div class="text-4xl font-extrabold text-yellow-400" id="result-score">0</div>
+            <div class="text-left">
+              <div class="text-sm text-gray-400">dari 5</div>
+              <div class="text-xs text-gray-500">pertanyaan benar</div>
+            </div>
+          </div>
+          <div class="w-full bg-white/10 rounded-full h-3 mb-2">
+            <div id="result-score-bar" class="h-3 rounded-full bg-gradient-to-r from-yellow-400 to-pink-500 transition-all duration-1000" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Persona Description -->
+        <div class="glass rounded-2xl p-6 mb-8 text-left animate-slide-up">
+          <p id="result-description" class="text-gray-300 text-sm leading-relaxed"></p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="space-y-3 animate-slide-up">
+          <button
+            id="btn-share"
+            onclick="shareToWhatsApp()"
+            class="w-full bg-green-600 hover:bg-green-700 rounded-2xl py-4 font-bold text-lg tracking-wide transition-all hover:-translate-y-1"
+          >
+            Share ke WhatsApp 💬
+          </button>
+          <button
+            onclick="restartQuiz()"
+            class="w-full glass hover:bg-white/10 rounded-2xl py-4 font-bold text-lg tracking-wide transition-all"
+          >
+            Main Lagi 🔄
+          </button>
+        </div>
+
+        <p class="text-gray-500 text-xs mt-6">Ramadan Persona Generator &middot; Powered by AI</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ERROR TOAST ============ -->
+  <div id="toast-error" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 hidden">
+    <div class="glass-strong rounded-xl px-5 py-3 flex items-center gap-3 animate-slide-up">
+      <span class="text-red-400">⚠️</span>
+      <span id="toast-message" class="text-sm"></span>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
