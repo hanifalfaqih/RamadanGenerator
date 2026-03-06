@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const axios = require('axios');
 require('dotenv').config();
 
 const app = express();
@@ -8,53 +9,75 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- API Proxy Endpoint (Alibaba Cloud DashScope) ---
 app.post('/api/chat', async (req, res) => {
   const apiKey = process.env.DASHSCOPE_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ error: 'API key DashScope belum diatur di .env' });
-  }
+  if (!apiKey) return res.status(500).json({ error: 'API Key DashScope hilang!' });
 
-  const { messages, temperature } = req.body || {};
+  const { type, tone, name, score } = req.body;
+  let systemPrompt = "";
+  let userPrompt = "";
+
+  if (type === 'quiz') {
+    systemPrompt = `Kamu adalah pembuat kuis Ramadan bergaya ${tone === 'receh' ? 'receh Gen Z' : 'bijak serius'}.`;
+    userPrompt = `Buatkan 5 soal trivia Ramadan. WAJIB kembalikan HANYA JSON array dengan struktur ini, TANPA TEKS LAIN SEBELUM ATAU SESUDAHNYA:
+[{"question":"...","options":["A","B","C","D"],"correctIndex":0}]`;
+  } else if (type === 'persona') {
+    systemPrompt = `Kamu analis kepribadian bergaya ${tone === 'receh' ? 'sangat gaul' : 'sangat puitis'}.`;
+    userPrompt = `Analisis user bernama ${name} skor ${score}/5. WAJIB kembalikan HANYA JSON object dengan struktur ini, TANPA TEKS LAIN SEBELUM ATAU SESUDAHNYA:
+{
+  "name": "Nama Persona",
+  "emoji": "😎",
+  "description": "Deskripsi panjang...",
+  "superpower": "Kekuatan...",
+  "weakness": "Kelemahan...",
+  "advice": "Saran...",
+  "funStats": "Statistik...",
+  "meme": { "setup": "Meme setup...", "punchline": "Meme punchline..." }
+}`;
+  } else {
+    return res.status(400).json({ error: 'Invalid type' });
+  }
 
   try {
-    // Menggunakan endpoint internasional Singapura
-    const response = await fetch('https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/text-generation/generation', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+    const response = await axios.post(
+      'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions',
+      {
+        model: 'qwen-plus',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        temperature: 0.7
       },
-      body: JSON.stringify({
-        model: 'qwen-max',
-        input: { messages },
-        parameters: { 
-          result_format: 'message', // Membuat output compatible dengan struktur app.js asli
-          temperature: temperature ?? 0.8
-        },
-      }),
-    });
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        }
+      }
+    );
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error('DashScope Error:', data);
-      return res.status(response.status).json({ error: data.message || 'Gagal memanggil DashScope' });
+    let rawContent = response.data.choices[0].message.content;
+    const jsonMatch = rawContent.match(/\[[\s\S]*\]|\{[\s\S]*\}/);
+    
+    if (jsonMatch) {
+      const cleanJson = JSON.parse(jsonMatch[0]);
+      res.json(cleanJson);
+    } else {
+      throw new Error("AI tidak mengembalikan JSON yang valid");
     }
 
-    // Mapping output DashScope agar sesuai dengan ekspektasi app.js Qoder
-    // app.js mengharapkan data.choices[0].message.content
-    res.json(data.output);
   } catch (err) {
-    console.error('Proxy error:', err);
-    res.status(500).json({ error: 'Gagal terhubung ke layanan Alibaba Cloud.' });
+    console.error('\n=== 🚨 ERROR DIAGNOSIS 🚨 ===');
+    if (err.response) {
+      console.error('Status HTTP:', err.response.status);
+      console.error('Alasan dari Alibaba:', JSON.stringify(err.response.data, null, 2));
+    } else {
+      console.error('Sistem/Parsing Error:', err.message);
+    }
+    console.error('=============================\n');
+    res.status(500).json({ error: 'Gagal memproses AI' });
   }
 });
 
-app.get('/{*splat}', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.listen(PORT, () => {
-  console.log(`Ramadan Persona Generator (Official Alibaba Version) running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 Ramadan Persona Engine berjalan di Port ${PORT}`));
